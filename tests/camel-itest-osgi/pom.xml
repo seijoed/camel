@@ -233,12 +233,37 @@
           <version>${cxf-version}</version>
       </dependency>
 
+      <dependency>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-amqp</artifactId>
+        <scope>test</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.apache.qpid</groupId>
+        <artifactId>qpid-broker</artifactId>
+        <version>${qpid-version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>commons-configuration</groupId>
+        <artifactId>commons-configuration</artifactId>
+        <version>1.4</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>backport-util-concurrent</groupId>
+        <artifactId>backport-util-concurrent</artifactId>
+        <version>3.1</version>
+        <scope>test</scope>
+      </dependency>
+    
   </dependencies>
 
   <build>
     <plugins>
       <!-- generate dependencies versions -->
-      <plugin>
+        <plugin>
         <groupId>org.apache.servicemix.tooling</groupId>
         <artifactId>depends-maven-plugin</artifactId>
         <executions>
@@ -265,7 +290,7 @@
                   <springVersion>${spring-version}</springVersion>
               </systemPropertyVariables>
           </configuration>
-      </plugin>      
+      </plugin>
 
         <!-- CXF wsdl2java generator, will plugin to the compile goal -->
         <plugin>
@@ -324,7 +349,7 @@
                         </includes>
                         <excludes>
 			            <!-- TODO: temporary disable unit test to let TC not hang -->
-	                    <exclude>**/*Test.*</exclude>
+                            <exclude>**/*Test.*</exclude>
                             <!--There are some conflicts of the JAXB OSGi bundle and Hudson System jar
                                 so I comment out these JAXB related tests -->
                             <exclude>**/OSGiIntegrationSpringTest.*</exclude>
