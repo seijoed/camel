@@ -39,7 +39,7 @@ public class RestletEndpoint extends DefaultEndpoint implements HeaderFilterStra
     private static final int DEFAULT_PORT = 80;
     private static final String DEFAULT_PROTOCOL = "http";
     private static final String DEFAULT_HOST = "localhost";
-    
+
     private Method restletMethod = Method.GET;
 
     // Optional and for consumer only.  This allows a single route to service multiple 
@@ -58,6 +58,7 @@ public class RestletEndpoint extends DefaultEndpoint implements HeaderFilterStra
     private Map<String, String> restletRealm;
     private HeaderFilterStrategy headerFilterStrategy;
     private RestletBinding restletBinding;
+    private boolean throwExceptionOnFailure = false;
 
     public RestletEndpoint(RestletComponent component, String remaining) throws Exception {
         super(remaining, component);
@@ -192,5 +193,13 @@ public class RestletEndpoint extends DefaultEndpoint implements HeaderFilterStra
 
     public void stop() throws Exception {
         // noop
+    }
+
+    public boolean isThrowExceptionOnFailure() {
+        return throwExceptionOnFailure;
+    }
+
+    public void setThrowExceptionOnFailure(boolean throwExceptionOnFailure) {
+        this.throwExceptionOnFailure = throwExceptionOnFailure;
     }
 }
