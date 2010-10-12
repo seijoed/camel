@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.ws.rs.core.Response;
@@ -61,7 +62,6 @@ public class CxfRsProducer extends DefaultProducer {
 
         Message inMessage = exchange.getIn();
         Boolean httpClientAPI = inMessage.getHeader(CxfConstants.CAMEL_CXF_RS_USING_HTTP_API, Boolean.class);
-        throwException = inMessage.getHeader(CxfConstants.CAMEL_CXF_RS_THROW_EXCEPTION_ON_FAILURE,Boolean.class);
         // set the value with endpoint's option
         if (httpClientAPI == null) {
             httpClientAPI = ((CxfRsEndpoint) getEndpoint()).isHttpClientAPI();
@@ -141,11 +141,10 @@ public class CxfRsProducer extends DefaultProducer {
             if (response instanceof Response) {
                 Integer respCode = ((Response) response).getStatus();
                 if (respCode != 200) {
-                    throw new CxfRsProducerException("Invalid response " + ((Response) response).getEntity());
+                    throw populateCxfRsProducerException(exchange, (Response) response, respCode);
                 }
             }
         }
-
         // set response
         if (exchange.getPattern().isOutCapable()) {
             if (LOG.isTraceEnabled()) {
@@ -180,7 +179,7 @@ public class CxfRsProducer extends DefaultProducer {
             if (response instanceof Response) {
                 Integer respCode = ((Response) response).getStatus();
                 if (respCode != 200) {
-                    throw new CxfRsProducerException("Invalid response " + ((Response) response).getEntity());
+                    throw populateCxfRsProducerException(exchange, (Response) response, respCode);
                 }
             }
         }
@@ -227,5 +226,46 @@ public class CxfRsProducer extends DefaultProducer {
         }
         buffer.append("]");
         return buffer.toString();
+    }
+
+    protected CxfRsProducerException populateCxfRsProducerException(Exchange exchange, Response response, int responseCode) {
+        CxfRsProducerException exception;
+        String uri = exchange.getFromEndpoint().getEndpointUri();
+        String statusText = Response.Status.fromStatusCode(responseCode).toString();
+        Map<String, String> headers = parseResponseHeaders(response, exchange);
+        String copy = response.toString();
+        LOG.warn(headers);
+        if (responseCode >= 300 && responseCode < 400) {
+            String redirectLocation;
+            if (response.getMetadata().getFirst("Location") != null) {
+                redirectLocation = response.getMetadata().getFirst("location").toString();
+                exception = new CxfRsProducerException(uri, responseCode, statusText, redirectLocation, headers, copy);
+            } else {
+                //no redirect location
+                exception = new CxfRsProducerException(uri, responseCode, statusText, null, headers, copy);
+            }
+        } else {
+            //internal server error(error code 500)
+            exception = new CxfRsProducerException(uri, responseCode, statusText, null, headers, copy);
+        }
+
+        return exception;
+    }
+
+    protected Map<String, String> parseResponseHeaders(Object response, Exchange camelExchange) {
+
+        Map<String, String> answer = new HashMap<String, String>();
+        if (response instanceof Response) {
+
+            for (Map.Entry<String, List<Object>> entry : ((Response) response).getMetadata().entrySet()) {
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("Parse external header " + entry.getKey() + "=" + entry.getValue());
+                }
+                LOG.info("Parse external header " + entry.getKey() + "=" + entry.getValue());
+                answer.put(entry.getKey(), entry.getValue().get(0).toString());
+            }
+        }
+
+        return answer;
     }
 }

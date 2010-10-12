@@ -17,11 +17,50 @@
 
 package org.apache.camel.component.cxf.jaxrs;
 
+import java.util.Map;
+
 import org.apache.camel.CamelException;
 
 public class CxfRsProducerException extends CamelException {
 
-    public CxfRsProducerException(String message) {
-        super(message);
+    private final String uri;
+    private final String redirectLocation;
+    private final int statusCode;
+    private final String statusText;
+    private final Map<String, String> responseHeaders;
+    private final String responseBody;
+
+    public CxfRsProducerException(String uri, int statusCode, String statusText, String location, Map<String, String> responseHeaders, String responseBody) {
+        super("JAXRS operation failed invoking " + uri + " with statusCode: " + statusCode + (location != null ? ", redirectLocation: " + location : ""));
+        this.uri = uri;
+        this.statusCode = statusCode;
+        this.statusText = statusText;
+        this.redirectLocation = location;
+        this.responseHeaders = responseHeaders;
+        this.responseBody = responseBody;
+    }
+
+    public String getRedirectLocation() {
+        return redirectLocation;
+    }
+
+    public String getResponseBody() {
+        return responseBody;
+    }
+
+    public Map<String, String> getResponseHeaders() {
+        return responseHeaders;
+    }
+
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    public String getStatusText() {
+        return statusText;
+    }
+
+    public String getUri() {
+        return uri;
     }
 }
