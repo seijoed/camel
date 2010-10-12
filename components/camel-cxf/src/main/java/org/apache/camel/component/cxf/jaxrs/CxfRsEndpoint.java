@@ -46,6 +46,7 @@ public class CxfRsEndpoint extends DefaultEndpoint implements HeaderFilterStrate
     private CxfRsBinding binding;
     private boolean httpClientAPI = true;
     private String address;
+    private boolean throwExceptionOnFailure = false;
 
     private AtomicBoolean bindingInitialized = new AtomicBoolean(false);
     
@@ -181,6 +182,14 @@ public class CxfRsEndpoint extends DefaultEndpoint implements HeaderFilterStrate
 
     public String getAddress() {
         return address;
+    }
+
+    public boolean isThrowExceptionOnFailure() {
+        return throwExceptionOnFailure;
+    }
+
+    public void setThrowExceptionOnFailure(boolean throwExceptionOnFailure) {
+        this.throwExceptionOnFailure = throwExceptionOnFailure;
     }
 
 }
