@@ -131,7 +131,7 @@
     <!-- for testing -->
     <dependency>
       <groupId>junit</groupId>
-      <artifactId>junit</artifactId>      
+      <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -256,9 +256,9 @@
           <includes>
              <include>**/*Test.java</include>
           </includes>
-          <excludes>            
+          <excludes>
             <!-- TODO FIXME ASAP -->
-            <exclude>**/XXXTest.*</exclude>            
+            <exclude>**/XXXTest.*</exclude>
           </excludes>
         </configuration>
       </plugin>
@@ -275,6 +275,11 @@
                 <echo>Deleting unwanted resources from the test-jar</echo>
                 <delete file="${project.build.directory}/test-classes/log4j.properties" verbose="true" />
                 <delete file="${project.build.directory}/test-classes/META-INF/spring/*" verbose="true" />
+
+                <jar destfile="${project.build.directory}/${project.artifactId}-${project.version}-sources.jar" update="true">
+                  <fileset dir="${basedir}/../camel-core-osgi/src/main/java" includes="**/*"/>
+                  <fileset dir="${basedir}/../camel-core-xml/src/main/java" includes="**/*"/>
+                </jar>
               </tasks>
             </configuration>
             <goals>
@@ -285,45 +290,6 @@
       </plugin>
 
       <!-- add the sources from camel-core-osgi and camel-core-xml as source code in the camel-spring-sources.jar -->
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>build-helper-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>add-source</id>
-            <phase>generate-sources</phase>
-            <goals>
-              <goal>add-source</goal>
-            </goals>
-            <configuration>
-              <sources>
-                <source>${basedir}/../camel-core-osgi/src/main/java</source>
-                <source>${basedir}/../camel-core-xml/src/main/java</source>
-              </sources>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-        
-        <!-- generate the attached tests jar -->
-      <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>test-jar</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <!-- TODO: this doesn't work - if ever we can figure out the maven ninja to get it working -->
-          <!-- TODO: we can zap the Ant package phase stuff above -->
-          <excludes>
-            <exclude>**/*/log4j.properties</exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
@@ -344,7 +310,26 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>    
+      </plugin>
+
+        <!-- generate the attached tests jar -->
+      <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <!-- TODO: this doesn't work - if ever we can figure out the maven ninja to get it working -->
+          <!-- TODO: we can zap the Ant package phase stuff above -->
+          <excludes>
+            <exclude>**/*/log4j.properties</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
     </plugins>
 
     <pluginManagement>
@@ -369,7 +354,7 @@
         </plugins>
     </pluginManagement>
   </build>
-  
+
   <profiles>
     <profile>
       <id>release</id>
@@ -465,7 +450,7 @@
                           <goal>run</goal>
                       </goals>
                   </execution>
-              </executions>              
+              </executions>
           </plugin>
         </plugins>
       </build>
@@ -493,10 +478,10 @@
                 </goals>
               </execution>
             </executions>
-          </plugin>                  
+          </plugin>
         </plugins>
       </build>
-    </profile>    
+    </profile>
 
     <profile>
       <id>on-hpjdk</id>
@@ -520,12 +505,12 @@
                 </goals>
               </execution>
             </executions>
-          </plugin>                          
+          </plugin>
         </plugins>
       </build>
-    </profile>      
+    </profile>
   </profiles>
-    
+
   <reporting>
     <plugins>
       <plugin>

@@ -85,7 +85,7 @@
         <dependency>
             <groupId>org.apache.camel.karaf</groupId>
             <artifactId>apache-camel</artifactId>
-            <version>${version}</version>
+            <version>${project.version}</version>
             <type>pom</type>
             <scope>test</scope>
         </dependency>
@@ -238,7 +238,6 @@
             <artifactId>camel-amqp</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.apache.qpid</groupId>
             <artifactId>qpid-broker</artifactId>
@@ -257,12 +256,13 @@
             <version>3.1</version>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-bean-validator</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <build>
@@ -271,6 +271,7 @@
             <plugin>
                 <groupId>org.apache.servicemix.tooling</groupId>
                 <artifactId>depends-maven-plugin</artifactId>
+                <version>1.2</version>
                 <executions>
                     <execution>
                         <id>generate-depends-file</id>
@@ -344,11 +345,6 @@
                                 on this information to PAX mvn url
                             -->
                             <argLine>-Dorg.ops4j.pax.url.mvn.localRepository=${maven.repo.local}</argLine>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <configuration>
                             <includes>
                                 <include>**/*Test.*</include>
                             </includes>
