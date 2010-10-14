@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -32,9 +31,11 @@ import org.apache.camel.Processor;
 import org.apache.camel.builder.ExpressionBuilder;
 import org.apache.camel.builder.ExpressionClause;
 import org.apache.camel.processor.CatchProcessor;
+import org.apache.camel.processor.InternalRoutingNotificationOnPredicateException;
 import org.apache.camel.processor.TryProcessor;
 import org.apache.camel.spi.RouteContext;
 import org.apache.camel.util.CastUtils;
+
 
 import static org.apache.camel.builder.PredicateBuilder.toPredicate;
 
@@ -54,6 +55,8 @@ public class TryDefinition extends OutputDefinition<TryDefinition> {
     private boolean initialized;
     @XmlTransient
     private List<ProcessorDefinition> outputsWithoutCatches;
+    @XmlTransient
+    private Predicate predicate;
 
     @Override
     public String toString() {
@@ -88,8 +91,11 @@ public class TryDefinition extends OutputDefinition<TryDefinition> {
                 catchProcessors.add(catchClause.createProcessor(routeContext));
             }
         }
-
-        return new TryProcessor(tryProcessor, catchProcessors, finallyProcessor);
+        if (predicate == null) {
+            return new TryProcessor(tryProcessor, catchProcessors, finallyProcessor);
+        } else {
+            return new TryProcessor(tryProcessor, catchProcessors, finallyProcessor,predicate);
+        }
     }
 
     // Fluent API
@@ -98,7 +104,7 @@ public class TryDefinition extends OutputDefinition<TryDefinition> {
     /**
      * Handles the given exception(s)
      *
-     * @param exceptionType  the exception(s)
+     * @param exceptionType the exception(s)
      * @return the try builder
      */
     public TryDefinition doCatch(Class... exceptionType) {
@@ -111,9 +117,25 @@ public class TryDefinition extends OutputDefinition<TryDefinition> {
     }
 
     /**
+     * Handles the given exception(s)
+     *
+     * @param predicateInTry the Predicate
+     * @return the try builder
+     */
+    public TryDefinition doCatch(Predicate predicateInTry) {
+        popBlock();
+        this.predicate = predicateInTry;
+        CatchDefinition answer = new CatchDefinition(predicateInTry);
+        answer.getExceptionClasses().add(InternalRoutingNotificationOnPredicateException.class);
+        addOutput(answer);
+        pushBlock(answer);
+        return this;
+    }
+
+    /**
      * The finally block for a given handle
      *
-     * @return  the try builder
+     * @return the try builder
      */
     public TryDefinition doFinally() {
         popBlock();
@@ -129,7 +151,7 @@ public class TryDefinition extends OutputDefinition<TryDefinition> {
      * To be used for fine grained controlling whether a thrown exception should be intercepted
      * by this exception type or not.
      *
-     * @param predicate  predicate that determines true or false
+     * @param predicate predicate that determines true or false
      * @return the builder
      */
     public TryDefinition onWhen(Predicate predicate) {
@@ -172,7 +194,7 @@ public class TryDefinition extends OutputDefinition<TryDefinition> {
     /**
      * Sets whether the exchange should be marked as handled or not.
      *
-     * @param handled  handled or not
+     * @param handled handled or not
      * @return the builder
      */
     public TryDefinition handled(boolean handled) {
@@ -183,7 +205,7 @@ public class TryDefinition extends OutputDefinition<TryDefinition> {
     /**
      * Sets whether the exchange should be marked as handled or not.
      *
-     * @param handled  predicate that determines true or false
+     * @param handled predicate that determines true or false
      * @return the builder
      */
     public TryDefinition handled(Predicate handled) {
@@ -201,7 +223,7 @@ public class TryDefinition extends OutputDefinition<TryDefinition> {
     /**
      * Sets whether the exchange should be marked as handled or not.
      *
-     * @param handled  expression that determines true or false
+     * @param handled expression that determines true or false
      * @return the builder
      */
     public TryDefinition handled(Expression handled) {
@@ -255,13 +277,13 @@ public class TryDefinition extends OutputDefinition<TryDefinition> {
 
             for (ProcessorDefinition output : outputs) {
                 if (output instanceof CatchDefinition) {
-                    catchClauses.add((CatchDefinition)output);
+                    catchClauses.add((CatchDefinition) output);
                 } else if (output instanceof FinallyDefinition) {
                     if (finallyClause != null) {
                         throw new IllegalArgumentException("Multiple finally clauses added: " + finallyClause
-                                                           + " and " + output);
+                                + " and " + output);
                     } else {
-                        finallyClause = (FinallyDefinition)output;
+                        finallyClause = (FinallyDefinition) output;
                     }
                 } else {
                     outputsWithoutCatches.add(output);
@@ -269,4 +291,5 @@ public class TryDefinition extends OutputDefinition<TryDefinition> {
             }
         }
     }
+
 }

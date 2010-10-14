@@ -25,6 +25,7 @@ import org.apache.camel.AsyncCallback;
 import org.apache.camel.AsyncProcessor;
 import org.apache.camel.Exchange;
 import org.apache.camel.Navigate;
+import org.apache.camel.Predicate;
 import org.apache.camel.Processor;
 import org.apache.camel.impl.ServiceSupport;
 import org.apache.camel.impl.converter.AsyncProcessorTypeConverter;
@@ -45,12 +46,23 @@ public class TryProcessor extends ServiceSupport implements AsyncProcessor, Navi
     protected final AsyncProcessor tryProcessor;
     protected final DoCatchProcessor catchProcessor;
     protected final DoFinallyProcessor finallyProcessor;
+    protected final Predicate matchingPredicate;
     private List<AsyncProcessor> processors;
 
     public TryProcessor(Processor tryProcessor, List<CatchProcessor> catchClauses, Processor finallyProcessor) {
         this.tryProcessor = AsyncProcessorTypeConverter.convert(tryProcessor);
         this.catchProcessor = new DoCatchProcessor(catchClauses);
         this.finallyProcessor = new DoFinallyProcessor(finallyProcessor);
+        //We ignore this in normal operations
+        this.matchingPredicate = null;
+    }
+
+    //Catch a Predicate as if it was an Exception.
+    public TryProcessor(Processor tryProcessor, List<CatchProcessor> catchClauses, Processor finallyProcessor, Predicate predicate) {
+        this.tryProcessor = AsyncProcessorTypeConverter.convert(tryProcessor);
+        this.catchProcessor = new DoCatchProcessor(catchClauses);
+        this.finallyProcessor = new DoFinallyProcessor(finallyProcessor);
+        this.matchingPredicate = predicate;
     }
 
     public String toString() {
@@ -67,8 +79,19 @@ public class TryProcessor extends ServiceSupport implements AsyncProcessor, Navi
     }
 
     public boolean process(Exchange exchange, AsyncCallback callback) {
+        if (matchingPredicate != null) {
+            if (matchingPredicate.matches(exchange)) {
+                //We want to set an exception on this processor.
+                if (LOG.isTraceEnabled()) {
+                    LOG.info("Predicate " + matchingPredicate + " matched " + exchange);
+                }
+                //Simulate a route failure - we throw an exception to let the TryProcessor go to the next hop.
+                exchange.setException(new InternalRoutingNotificationOnPredicateException());
+            } else {
+                exchange.setException(null);
+            }
+        }
         Iterator<AsyncProcessor> processors = getProcessors().iterator();
-
         while (continueRouting(processors, exchange)) {
             ExchangeHelper.prepareOutToIn(exchange);
 
@@ -92,9 +115,12 @@ public class TryProcessor extends ServiceSupport implements AsyncProcessor, Navi
         }
 
         ExchangeHelper.prepareOutToIn(exchange);
-        if (LOG.isTraceEnabled()) {
+        if (LOG.isTraceEnabled())
+
+        {
             LOG.trace("Processing complete for exchangeId: " + exchange.getExchangeId() + " >>> " + exchange);
         }
+
         callback.done(true);
         return true;
     }
@@ -105,7 +131,6 @@ public class TryProcessor extends ServiceSupport implements AsyncProcessor, Navi
             // this does the actual processing so log at trace level
             LOG.trace("Processing exchangeId: " + exchange.getExchangeId() + " >>> " + exchange);
         }
-
         // implement asynchronous routing logic in callback so we can have the callback being
         // triggered and then continue routing where we left
         boolean sync = AsyncProcessorHelper.process(processor, exchange, new AsyncCallback() {
@@ -118,6 +143,19 @@ public class TryProcessor extends ServiceSupport implements AsyncProcessor, Navi
                 // continue processing the try .. catch .. finally asynchronously
                 while (continueRouting(processors, exchange)) {
                     ExchangeHelper.prepareOutToIn(exchange);
+
+                    if (matchingPredicate != null) {
+                        if (matchingPredicate.matches(exchange)) {
+                            //We want to set an exception on this processor.
+                            if (LOG.isTraceEnabled()) {
+                                LOG.info("Predicate " + matchingPredicate + " matched " + exchange);
+                            }
+                            //Simulate a route failure - we throw an exception to let the TryProcessor go to the next hop.
+                            exchange.setException(new InternalRoutingNotificationOnPredicateException());
+                        } else {
+                            exchange.setException(null);
+                        }
+                    }
 
                     // process the next processor
                     AsyncProcessor processor = processors.next();
@@ -366,7 +404,7 @@ public class TryProcessor extends ServiceSupport implements AsyncProcessor, Navi
 
             if (LOG.isDebugEnabled()) {
                 LOG.debug("The exception is handled: " + handled + " for the exception: " + caught.getClass().getName()
-                    + " caused by: " + caught.getMessage());
+                        + " caused by: " + caught.getMessage());
             }
 
             boolean sync = super.processNext(exchange, new AsyncCallback() {
@@ -400,5 +438,4 @@ public class TryProcessor extends ServiceSupport implements AsyncProcessor, Navi
             return sync;
         }
     }
-
 }

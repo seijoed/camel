@@ -33,12 +33,23 @@ public class CatchProcessor extends DelegateAsyncProcessor implements Traceable 
     private final List<Class> exceptions;
     private final Predicate onWhen;
     private final Predicate handled;
+    private final Predicate matchingDoCatch;
 
     public CatchProcessor(List<Class> exceptions, Processor processor, Predicate onWhen, Predicate handled) {
         super(processor);
         this.exceptions = exceptions;
         this.onWhen = onWhen;
         this.handled = handled;
+        this.matchingDoCatch = null;
+    }
+
+    //This constructor allows support for matching a Predicate in a doCatch.
+    public CatchProcessor(List<Class> exceptions, Processor processor, Predicate matchingDoCatch) {
+        super(processor);
+        this.exceptions = exceptions;
+        this.onWhen = null;
+        this.handled = null;
+        this.matchingDoCatch = matchingDoCatch;
     }
 
     @Override
@@ -116,5 +127,9 @@ public class CatchProcessor extends DelegateAsyncProcessor implements Traceable 
             return true;
         }
         return onWhen.matches(exchange);
+    }
+
+    public Predicate getMatchingDoCatch() {
+        return matchingDoCatch;
     }
 }

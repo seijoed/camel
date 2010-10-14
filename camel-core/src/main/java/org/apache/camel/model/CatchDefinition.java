@@ -18,7 +18,6 @@ package org.apache.camel.model;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -32,9 +31,12 @@ import org.apache.camel.Processor;
 import org.apache.camel.builder.ExpressionBuilder;
 import org.apache.camel.builder.ExpressionClause;
 import org.apache.camel.processor.CatchProcessor;
+import org.apache.camel.processor.InternalRoutingNotificationOnPredicateException;
 import org.apache.camel.spi.RouteContext;
 import org.apache.camel.util.CastUtils;
 import org.apache.camel.util.ObjectHelper;
+
+
 import static org.apache.camel.builder.PredicateBuilder.toPredicate;
 
 /**
@@ -57,6 +59,8 @@ public class CatchDefinition extends ProcessorDefinition<CatchDefinition> {
     private List<Class> exceptionClasses;
     @XmlTransient
     private Predicate handledPolicy;
+    @XmlTransient
+    private Predicate matchOnPredicate;
 
     public CatchDefinition() {
     }
@@ -68,6 +72,12 @@ public class CatchDefinition extends ProcessorDefinition<CatchDefinition> {
     public CatchDefinition(Class exceptionType) {
         exceptionClasses = new ArrayList<Class>();
         exceptionClasses.add(exceptionType);
+    }
+
+    public CatchDefinition(Predicate matchOnPredicate) {
+        exceptionClasses = new ArrayList<Class>();
+        exceptionClasses.add(InternalRoutingNotificationOnPredicateException.class);
+        this.matchOnPredicate = matchOnPredicate;
     }
 
     @Override
@@ -104,8 +114,11 @@ public class CatchDefinition extends ProcessorDefinition<CatchDefinition> {
         if (handled != null) {
             handle = handled.createPredicate(routeContext);
         }
-
-        return new CatchProcessor(getExceptionClasses(), childProcessor, when, handle);
+        if (matchOnPredicate != null) {
+            return new CatchProcessor(getExceptionClasses(), childProcessor, matchOnPredicate);
+        } else {
+            return new CatchProcessor(getExceptionClasses(), childProcessor, when, handle);
+        }
     }
 
     public List<ProcessorDefinition> getOutputs() {
@@ -126,27 +139,28 @@ public class CatchDefinition extends ProcessorDefinition<CatchDefinition> {
     public void setExceptionClasses(List<Class> exceptionClasses) {
         this.exceptionClasses = exceptionClasses;
     }
-    
+
     // Fluent API
     //-------------------------------------------------------------------------
+
     /**
      * Sets the exceptionClasses of the CatchType
      *
-     * @param exceptionClasses  a list of the exception classes
+     * @param exceptionClasses a list of the exception classes
      * @return the builder
      */
     public CatchDefinition exceptionClasses(List<Class> exceptionClasses) {
         setExceptionClasses(exceptionClasses);
         return this;
     }
-    
+
     /**
      * Sets an additional predicate that should be true before the onCatch is triggered.
      * <p/>
      * To be used for fine grained controlling whether a thrown exception should be intercepted
      * by this exception type or not.
      *
-     * @param predicate  predicate that determines true or false
+     * @param predicate predicate that determines true or false
      * @return the builder
      */
     public CatchDefinition onWhen(Predicate predicate) {
@@ -173,7 +187,7 @@ public class CatchDefinition extends ProcessorDefinition<CatchDefinition> {
     /**
      * Sets whether the exchange should be marked as handled or not.
      *
-     * @param handled  handled or not
+     * @param handled handled or not
      * @return the builder
      */
     public CatchDefinition handled(boolean handled) {
@@ -184,7 +198,7 @@ public class CatchDefinition extends ProcessorDefinition<CatchDefinition> {
     /**
      * Sets whether the exchange should be marked as handled or not.
      *
-     * @param handled  predicate that determines true or false
+     * @param handled predicate that determines true or false
      * @return the builder
      */
     public CatchDefinition handled(Predicate handled) {
@@ -195,7 +209,7 @@ public class CatchDefinition extends ProcessorDefinition<CatchDefinition> {
     /**
      * Sets whether the exchange should be marked as handled or not.
      *
-     * @param handled  expression that determines true or false
+     * @param handled expression that determines true or false
      * @return the builder
      */
     public CatchDefinition handled(Expression handled) {
@@ -206,7 +220,7 @@ public class CatchDefinition extends ProcessorDefinition<CatchDefinition> {
     /**
      * Sets the exception class that the CatchType want to catch
      *
-     * @param exception  the exception of class
+     * @param exception the exception of class
      * @return the builder
      */
     public CatchDefinition exceptionClasses(Class exception) {
