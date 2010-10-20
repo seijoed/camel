@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-parent</artifactId>
-        <version>2.5-SNAPSHOT</version>
+        <version>2.6-SNAPSHOT</version>
         <relativePath>../../parent</relativePath>
     </parent>
 
@@ -173,8 +173,8 @@
                                 <delete file="${project.build.directory}/test-classes/META-INF/spring/*" verbose="true" />
 
                                 <jar destfile="${project.build.directory}/${project.artifactId}-${project.version}-sources.jar" update="true">
-                                  <fileset dir="${basedir}/../camel-core-osgi/src/main/java" includes="**/*"/>
-                                  <fileset dir="${basedir}/../camel-core-xml/src/main/java" includes="**/*"/>
+                                  <fileset dir="${basedir}/../camel-core-osgi/src/main/java" includes="**/*" />
+                                  <fileset dir="${basedir}/../camel-core-xml/src/main/java" includes="**/*" />
                                 </jar>
                             </tasks>
                         </configuration>
@@ -346,7 +346,7 @@
               </plugin>
             </plugins>
           </build>
-        </profile>
+        </profile>        
         <profile>
           <id>on-ibmjdk</id>
           <activation>
@@ -371,11 +371,11 @@
                   </execution>
 
                 </executions>
-              </plugin>
+              </plugin>                  
             </plugins>
           </build>
 
-        </profile>
+        </profile>    
         <profile>
           <id>on-hpjdk</id>
           <activation>
@@ -398,10 +398,10 @@
                     </goals>
                   </execution>
                 </executions>
-              </plugin>
+              </plugin>                          
             </plugins>
           </build>
-        </profile>
+        </profile>      
     </profiles>
 
     <reporting>
