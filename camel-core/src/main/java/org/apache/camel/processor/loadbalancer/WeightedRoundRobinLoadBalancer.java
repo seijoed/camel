@@ -16,6 +16,7 @@
  */
 package org.apache.camel.processor.loadbalancer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.camel.Exchange;
@@ -24,7 +25,7 @@ import org.apache.camel.Processor;
 public class WeightedRoundRobinLoadBalancer extends WeightedLoadBalancer {
     private int counter;
     
-    public WeightedRoundRobinLoadBalancer(List<Integer> distributionRatios) {
+    public WeightedRoundRobinLoadBalancer(ArrayList<Integer> distributionRatios) {
         super(distributionRatios);
     }
     

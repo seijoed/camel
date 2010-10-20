@@ -17,13 +17,10 @@
 package org.apache.camel.model.loadbalancer;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.camel.model.LoadBalancerDefinition;
@@ -34,17 +31,17 @@ import org.apache.camel.processor.loadbalancer.WeightedRoundRobinLoadBalancer;
 import org.apache.camel.spi.RouteContext;
 
 /**
- * Represents an XML &lt;weighted/&gt; element
+ * Represents an XML &lt;sticky/&gt; element
  */
 @XmlRootElement(name = "weighted")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class WeightedLoadBalancerDefinition extends LoadBalancerDefinition {
     
-    @XmlAttribute(name = "roundRobin", required = false)
-    private Boolean roundRobin = Boolean.FALSE;
+    @XmlElement(name = "roundRobin", required = true)
+    private boolean roundRobin;
     
-    @XmlAttribute(name = "distributionRatio", required = true)
-    private List<Integer> distributionRatioList = new ArrayList<Integer>();
+    @XmlElement(name = "distributionRatios", required = true)
+    private ArrayList<Integer> distributionRatioList;
     
     @Override
     protected LoadBalancer createLoadBalancer(RouteContext routeContext) {
@@ -62,19 +59,19 @@ public class WeightedLoadBalancerDefinition extends LoadBalancerDefinition {
         return loadBalancer;
     }
 
-    public Boolean isRoundRobin() {
+    public boolean isRoundRobin() {
         return roundRobin;
     }
 
-    public void setRoundRobin(Boolean roundRobin) {
+    public void setRoundRobin(boolean roundRobin) {
         this.roundRobin = roundRobin;
     }
 
-    public List<Integer> getDistributionRatioList() {
+    public ArrayList<Integer> getDistributionRatioList() {
         return distributionRatioList;
     }
 
-    public void setDistributionRatioList(List<Integer> distributionRatioList) {
+    public void setDistributionRatioList(ArrayList<Integer> distributionRatioList) {
         this.distributionRatioList = distributionRatioList;
     }
 
