@@ -18,6 +18,7 @@ package org.apache.camel.builder;
 
 import java.util.zip.Deflater;
 
+import org.apache.camel.model.dataformat.SyslogDataFormat;
 import org.w3c.dom.Node;
 
 import org.apache.camel.model.DataFormatDefinition;
@@ -264,6 +265,14 @@ public class DataFormatClause<T extends ProcessorDefinition<?>> {
         sdf.setCharset(charset);
         return dataFormat(sdf);
     }
+
+/**
+     * Uses the Syslog data format
+     */
+    public T syslog() {
+        return dataFormat(new SyslogDataFormat());
+    }
+
 
     /**
      * Return WellFormed HTML (an XML Document) either 
