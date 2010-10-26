@@ -30,17 +30,9 @@ public class WeightedRandomLoadBalancer extends WeightedLoadBalancer {
         super(distributionRatios);
     }
     
-    /* (non-Javadoc)
-     * @see org.apache.camel.processor.loadbalancer.QueueLoadBalancer#chooseProcessor(java.util.List, org.apache.camel.Exchange)
-     */
     @Override
-    protected Processor chooseProcessor(List<Processor> processors,
-            Exchange exchange) {
-        
-        normalizeDistributionListAgainstProcessors(processors);
-        
+    protected Processor chooseProcessor(List<Processor> processors, Exchange exchange) {
         boolean found = false;
-        
         while (!found) {
             if (getRuntimeRatios().isEmpty())  {
                 loadRuntimeRatios(getDistributionRatioList());
@@ -54,7 +46,6 @@ public class WeightedRandomLoadBalancer extends WeightedLoadBalancer {
             if (getRuntimeRatios().get(randomCounter).getRuntimeWeight() > 0) {
                 getRuntimeRatios().get(randomCounter).setRuntimeWeight((getRuntimeRatios().get(randomCounter).getRuntimeWeight()) - 1);
                 found = true;
-                break;
             } else {
                 getRuntimeRatios().remove(randomCounter);
             }

@@ -24,18 +24,18 @@
 
     <camelContext id="myCamel" xmlns="http://camel.apache.org/schema/spring">
 
-            <dataFormats>
-                <syslog id="mySyslog"/>
-            </dataFormats>
+        <dataFormats>
+            <syslog id="mySyslog"/>
+        </dataFormats>
 
-            <route>
-                <from uri="netty:udp://localhost:10514?sync=false&amp;allowDefaultCodec=false"/>
-                <unmarshal ref="mySyslog"/>
-                <to uri="mock:stop1"/>
-                <marshal ref="mySyslog"/>
-                <to uri="mock:stop2"/>
-            </route>
+        <route>
+            <from uri="netty:udp://localhost:10514?sync=false&amp;allowDefaultCodec=false"/>
+            <unmarshal ref="mySyslog"/>
+            <to uri="mock:stop1"/>
+            <marshal ref="mySyslog"/>
+            <to uri="mock:stop2"/>
+        </route>
 
-        </camelContext>
+    </camelContext>
 
 </beans>

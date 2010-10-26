@@ -14,29 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.camel.component.jetty;
 
-import org.apache.camel.builder.RouteBuilder;
-import org.junit.Test;
+package org.apache.camel.model.dataformat;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.apache.camel.model.DataFormatDefinition;
 
 /**
- * Unit test to verify that the Jetty HTTP connector is correctly disconnected on shutdown
+ * Represents a <a href="http://camel.apache.org/syslog.html">Syslog</a> {@link org.apache.camel.spi.DataFormat}.
+ *
+ * @version $Revision$
  */
-public class JettyHttpEndpointDisconnectTest extends BaseJettyTest {
+@XmlRootElement(name = "syslog")
+@XmlAccessorType(XmlAccessType.FIELD)
+public class SyslogDataFormat extends DataFormatDefinition {
 
-    private String serverUri = "http://localhost:" + getPort() + "/myservice";
-
-    @Test
-    public void testContextShutdownRemovesHttpConnector() throws Exception {
-        context.stop();
-        assertEquals("Connector should have been removed", 0, JettyHttpComponent.CONNECTORS.size());
-    }
-
-    protected RouteBuilder createRouteBuilder() throws Exception {
-        return new RouteBuilder() {
-            public void configure() throws Exception {
-                from("jetty:" + serverUri).to("mock:result");
-            }
-        };
+    public SyslogDataFormat() {
+        super("syslog");
     }
 }

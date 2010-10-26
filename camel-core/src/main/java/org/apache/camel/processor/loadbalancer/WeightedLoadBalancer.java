@@ -19,50 +19,37 @@ package org.apache.camel.processor.loadbalancer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.camel.Processor;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 public abstract class WeightedLoadBalancer extends QueueLoadBalancer {
-    private static final transient Log LOG = LogFactory.getLog(WeightedLoadBalancer.class);
-    private ArrayList<Integer> distributionRatioList = new ArrayList<Integer>();
+    private List<Integer> distributionRatioList = new ArrayList<Integer>();
     private ArrayList<DistributionRatio> runtimeRatios = new ArrayList<DistributionRatio>();
     
-    public WeightedLoadBalancer(ArrayList<Integer> distributionRatios) {
+    public WeightedLoadBalancer(List<Integer> distributionRatios) {
         deepCloneDistributionRatios(distributionRatios);
         loadRuntimeRatios(distributionRatios);
     }
     
-    protected void deepCloneDistributionRatios(ArrayList<Integer> distributionRatios) {
+    protected void deepCloneDistributionRatios(List<Integer> distributionRatios) {
         for (Integer value : distributionRatios) {
             this.distributionRatioList.add(value);
         }
     }
     
-    protected void loadRuntimeRatios(ArrayList<Integer> distributionRatios) {
+    
+    @Override
+    protected void doStart() throws Exception {
+        super.doStart();
+        if (getProcessors().size() != getDistributionRatioList().size()) {
+            throw new IllegalArgumentException("Loadbalacing with " + getProcessors().size()
+                + " should match number of distributions " + getDistributionRatioList().size());
+        }
+    }
+
+    protected void loadRuntimeRatios(List<Integer> distributionRatios) {
         int position = 0;
         
         for (Integer value : distributionRatios) {
             runtimeRatios.add(new DistributionRatio(position++, value.intValue()));
         }
-    }
-
-    protected void normalizeDistributionListAgainstProcessors(List<Processor> processors) {
-        if (processors.size() > getDistributionRatioList().size()) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Listed Load Balance Processors do not match distributionRatio. Best Effort distribution will be attempted");
-                LOG.warn("Number of Processors: " + processors.size() + ". Number of DistibutionRatioList elements: " + getDistributionRatioList().size());
-            }
-        } else if (processors.size() < getDistributionRatioList().size()) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Listed Load Balance Processors do not match distributionRatio. Best Effort distribution will be attempted");
-                LOG.warn("Number of Processors: " + processors.size() + ". Number of DistibutionRatioList elements: " + getDistributionRatioList().size());
-            }
-            for (int i = processors.size(); i < getDistributionRatioList().size(); i++) {
-                getDistributionRatioList().set(i, 0);
-                getRuntimeRatios().remove(i);
-            }
-        }        
     }
     
     protected boolean isRuntimeRatiosZeroed() {
@@ -82,11 +69,11 @@ public abstract class WeightedLoadBalancer extends QueueLoadBalancer {
         }
     }
 
-    public ArrayList<Integer> getDistributionRatioList() {
+    public List<Integer> getDistributionRatioList() {
         return distributionRatioList;
     }
 
-    public void setDistributionRatioList(ArrayList<Integer> distributionRatioList) {
+    public void setDistributionRatioList(List<Integer> distributionRatioList) {
         this.distributionRatioList = distributionRatioList;
     }
 
