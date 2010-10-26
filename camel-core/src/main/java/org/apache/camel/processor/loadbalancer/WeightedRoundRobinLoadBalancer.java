@@ -16,7 +16,6 @@
  */
 package org.apache.camel.processor.loadbalancer;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.camel.Exchange;
@@ -24,33 +23,33 @@ import org.apache.camel.Processor;
 
 public class WeightedRoundRobinLoadBalancer extends WeightedLoadBalancer {
     private int counter;
-    
-    public WeightedRoundRobinLoadBalancer(ArrayList<Integer> distributionRatios) {
+
+    public WeightedRoundRobinLoadBalancer(List<Integer> distributionRatios) {
         super(distributionRatios);
     }
-    
+
     @Override
     protected Processor chooseProcessor(List<Processor> processors, Exchange exchange) {
-        if (isRuntimeRatiosZeroed())  {
+        if (isRuntimeRatiosZeroed()) {
             resetRuntimeRatios();
             counter = 0;
         }
-        
+
         boolean found = false;
         while (!found) {
             if (counter >= getRuntimeRatios().size()) {
                 counter = 0;
             }
-            
+
             if (getRuntimeRatios().get(counter).getRuntimeWeight() > 0) {
-                getRuntimeRatios().get(counter).setRuntimeWeight((getRuntimeRatios().get(counter).getRuntimeWeight()) - 1);
+                getRuntimeRatios().get(counter)
+                    .setRuntimeWeight((getRuntimeRatios().get(counter).getRuntimeWeight()) - 1);
                 found = true;
             } else {
                 counter++;
             }
         }
-       
+
         return processors.get(counter++);
     }
-    
 }

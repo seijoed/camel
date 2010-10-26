@@ -26,7 +26,7 @@ import org.apache.camel.Processor;
 public class WeightedRandomLoadBalancer extends WeightedLoadBalancer {
     private int randomCounter;
     
-    public WeightedRandomLoadBalancer(ArrayList<Integer> distributionRatios) {
+    public WeightedRandomLoadBalancer(List<Integer> distributionRatios) {
         super(distributionRatios);
     }
     
