@@ -179,6 +179,10 @@
     <feature version='${pom.version}'>camel-core</feature>
     <bundle>mvn:org.apache.camel/camel-jms/${pom.version}</bundle>
   </feature>
+  <feature name='camel-jmx' version='${pom.version}'>
+    <feature version='${pom.version}'>camel-core</feature>
+    <bundle>mvn:org.apache.camel/camel-jmx/${pom.version}</bundle>
+  </feature>
   <feature name='camel-amqp' version='${pom.version}'>
     <bundle>mvn:commons-lang/commons-lang/${commons-lang-version}</bundle>
     <bundle>mvn:commons-collections/commons-collections/${commons-collections-version}</bundle>
@@ -537,6 +541,15 @@
     <bundle>mvn:org.springframework.security/spring-security-core/${spring-security-version}</bundle>
     <bundle>mvn:org.springframework.security/spring-security-config/${spring-security-version}</bundle>
     <bundle>mvn:org.apache.camel/camel-spring-security/${pom.version}</bundle>
+  </feature>
+  <feature name='camel-spring-ws' version='${pom.version}'>
+    <feature version='${pom.version}'>camel-spring</feature>
+    <bundle>mvn:org.springframework/spring-web/${spring3-version}</bundle>
+    <bundle>mvn:org.springframework.ws/spring-xml/${spring-ws-version}</bundle>
+    <bundle>mvn:org.springframework.ws/spring-oxm/${spring-ws-version}</bundle>
+    <bundle>mvn:org.springframework.ws/spring-ws-core/${spring-ws-version}</bundle>
+    <bundle>mvn:org.springframework.ws/spring-ws-support/${spring-ws-version}</bundle>
+    <bundle>mvn:org.apache.camel/camel-spring-ws/${pom.version}</bundle>
   </feature>
   <feature name='camel-sql' version='${pom.version}'>
     <bundle>mvn:org.springframework/spring-tx/${spring3-version}</bundle>

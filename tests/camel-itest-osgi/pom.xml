@@ -25,6 +25,7 @@
     <groupId>org.apache.camel</groupId>
     <artifactId>camel-parent</artifactId>
     <version>2.6-SNAPSHOT</version>
+    <relativePath>../../parent</relativePath>
   </parent>
 
   <artifactId>camel-itest-osgi</artifactId>
@@ -233,29 +234,41 @@
           <version>${cxf-version}</version>
       </dependency>
 
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-amqp</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.qpid</groupId>
-            <artifactId>qpid-broker</artifactId>
-            <version>${qpid-version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>commons-configuration</groupId>
-            <artifactId>commons-configuration</artifactId>
-            <version>1.4</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>backport-util-concurrent</groupId>
-            <artifactId>backport-util-concurrent</artifactId>
-            <version>3.1</version>
-            <scope>test</scope>
-        </dependency>
+      <dependency>
+          <groupId>org.apache.camel</groupId>
+          <artifactId>camel-amqp</artifactId>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.qpid</groupId>
+          <artifactId>qpid-broker</artifactId>
+          <version>${qpid-version}</version>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>commons-configuration</groupId>
+          <artifactId>commons-configuration</artifactId>
+          <version>1.4</version>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+          <groupId>backport-util-concurrent</groupId>
+          <artifactId>backport-util-concurrent</artifactId>
+          <version>3.1</version>
+          <scope>test</scope>
+      </dependency>
+  
+      <dependency>
+        <groupId>org.apache.ftpserver</groupId>
+        <artifactId>ftpserver-core</artifactId>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.ftpserver</groupId>
+        <artifactId>ftplet-api</artifactId>
+        <scope>test</scope>
+      </dependency>
+      
     
     </dependencies>
 
