@@ -59,4 +59,17 @@ public class SftpSimpleProduceTest extends SftpServerTestSupport {
         assertEquals("Bye World", context.getTypeConverter().convertTo(String.class, file));
     }
 
+    @Test
+    public void testSftpSimpleTwoSubPathProduce() throws Exception {
+        if (!canTest()) {
+            return;
+        }
+
+        template.sendBodyAndHeader("sftp://localhost:" + getPort() + "/" + FTP_ROOT_DIR + "/mysub/myother?username=admin&password=admin", "Farewell World", Exchange.FILE_NAME, "farewell.txt");
+
+        File file = new File(FTP_ROOT_DIR + "/mysub/myother/farewell.txt").getAbsoluteFile();
+        assertTrue("File should exist: " + file, file.exists());
+        assertEquals("Farewell World", context.getTypeConverter().convertTo(String.class, file));
+    }
+
 }
